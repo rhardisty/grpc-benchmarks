@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "grpcio-tools>=1.80.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-grpc-benchmark"
+version = "0.1.0"
+description = "gRPC server streaming benchmark"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "grpcio>=1.80.0",
+    "protobuf>=4.25.0",
+]
+
+[project.scripts]
+python-grpc-benchmark-server = "python_grpc_benchmark.server:main"
+python-grpc-benchmark-client = "python_grpc_benchmark.client:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"python_grpc_benchmark" = ["proto/*.proto"]
+
+[tool.uv]
+dev-dependencies = [
+    "grpcio-tools>=1.80.0",
+]
