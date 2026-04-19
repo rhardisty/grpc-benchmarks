@@ -1,0 +1,27 @@
+[package]
+name = "grpc_benchmark_rust"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "grpc_benchmark_server"
+path = "src/server.rs"
+
+[[bin]]
+name = "grpc_benchmark_client"
+path = "src/client.rs"
+
+[dependencies]
+async-stream = "0.3"
+clap = { version = "4", features = ["derive"] }
+futures-core = "0.3"
+prost = "0.13"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "time"] }
+tonic = { version = "0.12", default-features = false, features = ["prost", "transport", "codegen"] }
+
+[build-dependencies]
+tonic-build = "0.12"

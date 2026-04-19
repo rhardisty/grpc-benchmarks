@@ -53,6 +53,42 @@ docker compose --profile cpp up -d cpp-server --build
 docker compose --profile cpp run --rm cpp-client grpc_benchmark_client --target cpp-server:50051
 ```
 
+**Rust** (`rust-server`, `rust-client`; client exits after the stream reaches `max_size_bytes`; Compose stops when the client exits):
+
+```bash
+docker compose --profile rust up --build
+```
+
+**Rust server in the background**, then run the client on demand:
+
+```bash
+docker compose --profile rust up -d rust-server --build
+docker compose --profile rust run --rm rust-client /usr/local/bin/grpc_benchmark_client --target rust-server:50051
+```
+
+**Go** (`go-server`, `go-client`; client exits after the stream reaches `max_size_bytes`; Compose stops when the client exits):
+
+```bash
+docker compose --profile go up --build
+```
+
+**Go server in the background**, then run the client on demand:
+
+```bash
+docker compose --profile go up -d go-server --build
+docker compose --profile go run --rm go-client /usr/local/bin/grpc_benchmark_client --target go-server:50051
+```
+
+**Cross-language client (e.g. Python → C++ server)** — gRPC is fine: any client here can talk to any server that implements `proto/benchmark.proto`. The friction is **Compose**, not the wire protocol: `python-client` has **`depends_on: python-server`**, so `docker compose … run python-client` tries to start **python-server** as well. That container also maps host **50051**, which fails if **cpp-server** (or another stack) already owns that port (`Bind for 0.0.0.0:50051 failed: port is already allocated`).
+
+Keep **one** server running, then run the client **without** starting its bundled server:
+
+```bash
+docker compose --profile cpp up -d cpp-server --build
+docker compose --profile python run --rm --no-deps python-client python -m python_grpc_benchmark.client --target cpp-server:50051
+```
+
+Use `--no-deps` whenever the client’s default `depends_on` server would conflict with the server you actually want (`rust-server`, `go-server`, etc.). Inside Compose, use the **service name** and port **50051** (e.g. `cpp-server:50051`), not `python-server`, unless that is the server you started.
 
 **Stop and remove containers:**
 
@@ -60,4 +96,6 @@ docker compose --profile cpp run --rm cpp-client grpc_benchmark_client --target 
 docker compose down
 ```
 
+With the **`python`** profile, the server listens on host port **50051** (`50051:50051`). Override client flags by passing arguments after `docker compose --profile python run --rm python-client` as in the example above. The **`cpp`**, **`rust`**, and **`go`** profiles use the same host port mapping; never enable more than one profile at once.
 
+For C++ without Compose, see **`cpp/README.md`** (`docker build` / `docker run`). For Rust without Compose, see **`rust/README.md`**. For Go without Compose, see **`go/README.md`**.
