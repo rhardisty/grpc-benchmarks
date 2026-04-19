@@ -19,6 +19,7 @@ Python, C++, Rust, and Go clients log the same way: **application chunk payload*
 | Client | Server | Language | Throughput (Gbps) | Chunk size (bytes) | Total size (bytes) | Duration (s) |
 |--------|--------|----------|------------------:|-------------------:|-------------------:|-------------:|
 | local host | local host | Python |            13.067 | 4194304 | 5368709120 | 3.286764 |
+| local host | local host | C++ | 28.291 | 4194304 | 5368709120 | 1.518142 |
 
 ## Docker Compose
 
@@ -38,6 +39,20 @@ docker compose --profile python up --build
 docker compose --profile python up -d python-server --build
 docker compose --profile python run --rm python-client python -m python_grpc_benchmark.client --target python-server:50051 --max-size-bytes 5368709120
 ```
+
+**C++** (`cpp-server`, `cpp-client`; client exits after the stream reaches `max_size_bytes`; Compose stops when the client exits):
+
+```bash
+docker compose --profile cpp up --build
+```
+
+**C++ server in the background**, then run the client on demand:
+
+```bash
+docker compose --profile cpp up -d cpp-server --build
+docker compose --profile cpp run --rm cpp-client grpc_benchmark_client --target cpp-server:50051
+```
+
 
 **Stop and remove containers:**
 
