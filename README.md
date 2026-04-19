@@ -81,9 +81,9 @@ docker compose --profile go up -d go-server --build
 docker compose --profile go run --rm go-client /usr/local/bin/grpc_benchmark_client --target go-server:50051
 ```
 
-**Cross-language client (e.g. Python → C++ server)** — gRPC is fine: any client here can talk to any server that implements `proto/benchmark.proto`. The friction is **Compose**, not the wire protocol: `python-client` has **`depends_on: python-server`**, so `docker compose … run python-client` tries to start **python-server** as well. That container also maps host **50051**, which fails if **cpp-server** (or another stack) already owns that port (`Bind for 0.0.0.0:50051 failed: port is already allocated`).
+**Cross-language client (e.g. Python → C++ server)** — Any client here can talk to any server that implements `proto/benchmark.proto`. There is some friction in **Compose**: e.g. `python-client` has **`depends_on: python-server`**, so `docker compose … run python-client` tries to start **python-server** when running client. That container also maps host **50051**, which fails if **cpp-server** (or another stack) already owns that port (`Bind for 0.0.0.0:50051 failed: port is already allocated`).
 
-Keep **one** server running, then run the client **without** starting its bundled server:
+To benchmark cross-language server-client, keep **one** server running, then run the client **without** starting its bundled server:
 
 ```bash
 docker compose --profile cpp up -d cpp-server --build
