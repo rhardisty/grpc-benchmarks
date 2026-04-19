@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package benchmark;
+
+option go_package = "grpc-benchmark/go/gen/benchmarkpb;benchmarkpb";
+
+// Service for benchmarking gRPC server streaming performance.
+service StreamingBenchmark {
+  // Server streaming: one request, stream of responses.
+  rpc ServerStream(EchoRequest) returns (stream EchoResponse);
+}
+
+// Request: desired byte size of each streamed response chunk (no client payload).
+message EchoRequest {
+  // Byte length of the `chunk` field on each `EchoResponse` (server fills with zeros). Must be positive.
+  int64 response_chunk_size_bytes = 1;
+  // Optional sequence number for ordering/latency tracking (added to each response index).
+  int64 sequence = 2;
+  // Total maximum payload bytes across all streamed `chunk` fields. Must be positive.
+  // The server stops before sending a chunk that would exceed this (the last chunk may be shorter).
+  int64 max_size_bytes = 3;
+}
+
+// One streamed response message: a fixed-size chunk plus sequence.
+message EchoResponse {
+  bytes chunk = 1;
+  int64 sequence = 2;
+}
