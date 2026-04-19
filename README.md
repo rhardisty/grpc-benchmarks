@@ -18,8 +18,10 @@ Python, C++, Rust, and Go clients log the same way: **application chunk payload*
 
 | Client | Server | Language | Throughput (Gbps) | Chunk size (bytes) | Total size (bytes) | Duration (s) |
 |--------|--------|----------|------------------:|-------------------:|-------------------:|-------------:|
-| local host | local host | Python |            13.067 | 4194304 | 5368709120 | 3.286764 |
-| local host | local host | C++ | 28.291 | 4194304 | 5368709120 | 1.518142 |
+| local host | local host | Python   |            13.067 | 4194304 | 5368709120 | 3.286764 |
+| local host | local host | C++      |            28.291 | 4194304 | 5368709120 | 1.518142 |
+| local host | local host | Rust     |            16.686 | 4194304 | 5368709120 | 2.574034 |
+| local host | local host | Go       |            19.382 | 4194304 | 5368709120 | 2.21590 |
 
 ## Docker Compose
 

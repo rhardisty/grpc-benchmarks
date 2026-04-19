@@ -1,0 +1,23 @@
+# Generated from proto (rebuilt at install time)
+python/src/python_grpc_benchmark/benchmark_pb2.py
+python/src/python_grpc_benchmark/benchmark_pb2_grpc.py
+# Copied from repo-root proto/ during build (canonical .proto files live in /proto)
+python/src/python_grpc_benchmark/proto/
+
+# Setuptools metadata (generated on install)
+*.egg-info/
+
+# Python bytecode
+__pycache__/
+
+# UV / venv
+python/.venv/
+python/dist/
+python/build/
+python/src/*.egg-info/
+/.cursor/
+
+# JetBrains / PyCharm
+.idea/
+
+.DS_STORE

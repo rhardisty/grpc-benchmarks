@@ -1,0 +1,132 @@
+# All services use Compose profiles — nothing starts until you pass an explicit profile.
+# Use only one profile per project (do not combine python / cpp / rust / go profiles).
+# Cross-language client: keep one server up, then e.g. `docker compose --profile python run --rm --no-deps python-client … --target cpp-server:50051` (avoids depends_on starting a second server on host 50051).
+#
+# Python stack (host 50051):
+#   docker compose --profile python up --build
+#   docker compose --profile python up -d python-server
+#   docker compose --profile python run --rm python-client python -m python_grpc_benchmark.client --target python-server:50051
+#
+# C++ stack (host 50051; same published port as Python — run only one profile at a time):
+#   docker compose --profile cpp up --build
+#   docker compose --profile cpp up -d cpp-server
+#   docker compose --profile cpp run --rm cpp-client grpc_benchmark_client --target cpp-server:50051
+#
+# Rust stack (tonic; host 50051):
+#   docker compose --profile rust up --build
+#   docker compose --profile rust up -d rust-server
+#   docker compose --profile rust run --rm rust-client /usr/local/bin/grpc_benchmark_client --target rust-server:50051
+#
+# Go stack (host 50051):
+#   docker compose --profile go up --build
+#   docker compose --profile go up -d go-server
+#   docker compose --profile go run --rm go-client /usr/local/bin/grpc_benchmark_client --target go-server:50051
+#
+services:
+  python-server:
+    profiles: ["python"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: grpc-benchmark:python
+    ports:
+      - "50051:50051"
+    command:
+      - python
+      - -m
+      - python_grpc_benchmark.server
+      - --listen
+      - "0.0.0.0:50051"
+
+  python-client:
+    profiles: ["python"]
+    image: grpc-benchmark:python
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - python-server
+    command:
+      - python
+      - -m
+      - python_grpc_benchmark.client
+      - --target
+      - python-server:50051
+
+  cpp-server:
+    profiles: ["cpp"]
+    build:
+      context: .
+      dockerfile: cpp/Dockerfile
+    image: grpc-benchmark:cpp
+    ports:
+      - "50051:50051"
+    command:
+      - grpc_benchmark_server
+      - --listen
+      - "0.0.0.0:50051"
+
+  cpp-client:
+    profiles: ["cpp"]
+    image: grpc-benchmark:cpp
+    build:
+      context: .
+      dockerfile: cpp/Dockerfile
+    depends_on:
+      - cpp-server
+    command:
+      - grpc_benchmark_client
+      - --target
+      - cpp-server:50051
+
+  rust-server:
+    profiles: ["rust"]
+    build:
+      context: .
+      dockerfile: rust/Dockerfile
+    image: grpc-benchmark:rust
+    ports:
+      - "50051:50051"
+    command:
+      - /usr/local/bin/grpc_benchmark_server
+      - --listen
+      - "0.0.0.0:50051"
+
+  rust-client:
+    profiles: ["rust"]
+    image: grpc-benchmark:rust
+    build:
+      context: .
+      dockerfile: rust/Dockerfile
+    depends_on:
+      - rust-server
+    command:
+      - /usr/local/bin/grpc_benchmark_client
+      - --target
+      - rust-server:50051
+
+  go-server:
+    profiles: ["go"]
+    build:
+      context: .
+      dockerfile: go/Dockerfile
+    image: grpc-benchmark:go
+    ports:
+      - "50051:50051"
+    command:
+      - /usr/local/bin/grpc_benchmark_server
+      - --listen
+      - "0.0.0.0:50051"
+
+  go-client:
+    profiles: ["go"]
+    image: grpc-benchmark:go
+    build:
+      context: .
+      dockerfile: go/Dockerfile
+    depends_on:
+      - go-server
+    command:
+      - /usr/local/bin/grpc_benchmark_client
+      - --target
+      - go-server:50051

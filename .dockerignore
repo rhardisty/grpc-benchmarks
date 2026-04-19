@@ -1,0 +1,19 @@
+.git
+**/.venv
+**/dist
+**/build
+**/*.egg-info
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+.cursor
+.idea
+
+# C++ build artifacts (image builds clean in Docker)
+cpp/build
+
+# Rust target dir (image builds clean in Docker)
+rust/target
+
+# Go build artifacts / generated stubs (image regenerates stubs in Docker)
+go/gen
